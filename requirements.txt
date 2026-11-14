@@ -1,0 +1,4 @@
+# MemTrace has no runtime dependencies (standard library only).
+# Development tools (lower bounds; see README for the versions it was tested with):
+pytest>=8.0
+mypy>=1.10
