@@ -41,15 +41,21 @@ class IntegrityMonitor:
     ) -> tuple[IntegrityResult, str | None]:
         """Verify ``memory_id`` and return the stored content only if it is VALID.
 
-        The content is read exactly once, so the bytes that were hashed are the
-        bytes handed back.  For ``TAMPERED`` and ``MISSING`` the second element
-        is ``None``: unverified content is never exposed as trusted.
+        The store item's ``memory_id`` is checked before its content, and its
+        ``content`` is read exactly once, so the bytes that were hashed are the
+        bytes handed back (no split-view).  For ``TAMPERED`` and ``MISSING`` the
+        second element is ``None``: unverified content is never exposed as
+        trusted.
 
         Raises:
             MemoryNotFoundError: ``memory_id`` is not tracked by the ledger.
             IntegrityError: verification could not be completed (database or
-                store failure) or the ledger itself is inconsistent.
+                store failure, including any exception raised while reading the
+                store item), the store returned a different ``memory_id`` or
+                content of the wrong type, or the ledger itself is inconsistent.
         """
+        stored: str | None = None
+        actual: str | None = None
         try:
             version = self._ledger.get_current_version(conn, memory_id)
             if content_hash(version.content) != version.content_hash:
@@ -58,6 +64,27 @@ class IntegrityMonitor:
                     "inconsistent: its content does not match its recorded hash"
                 )
             item = self._store.get(conn, memory_id)
+            if item is not None:
+                # RT-007: the store must answer for the memory we asked about.
+                # Read the id once and require an exact ``str``.  ``str.__ne__``
+                # ignores comparison overrides on either operand; anything other
+                # than ``False`` (including ``NotImplemented``) is a mismatch.
+                returned_id = item.memory_id
+                if type(returned_id) is not str:
+                    raise IntegrityError("store returned invalid memory_id type")
+                if str.__ne__(returned_id, memory_id) is not False:
+                    raise IntegrityError(
+                        f"store returned mismatched memory_id: expected "
+                        f"{memory_id!r}, got {returned_id!r}"
+                    )
+                # RT-008: read ``content`` exactly once.  The local below is the
+                # only thing that is type-checked, hashed and returned, so the
+                # bytes that were verified are the bytes handed to the caller.
+                content = item.content
+                if type(content) is not str:
+                    raise IntegrityError("store returned invalid content type")
+                actual = content_hash(content)
+                stored = content
         except MemTraceError:
             raise
         except Exception as exc:  # fail closed on any database or store failure
@@ -67,7 +94,7 @@ class IntegrityMonitor:
             ) from exc
 
         expected = version.content_hash
-        if item is None:
+        if stored is None or actual is None:
             return (
                 IntegrityResult(
                     memory_id=memory_id,
@@ -81,7 +108,6 @@ class IntegrityMonitor:
                 ),
                 None,
             )
-        actual = content_hash(item.content)
         if actual != expected:
             return (
                 IntegrityResult(
@@ -107,5 +133,5 @@ class IntegrityMonitor:
                     f"{version.version_number} ({version.version_id})"
                 ),
             ),
-            item.content,
+            stored,
         )

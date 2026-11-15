@@ -87,7 +87,9 @@ class AuditEvent:
 
 def content_hash(content: str) -> str:
     """Return the lowercase SHA-256 hex digest of ``content`` (UTF-8)."""
-    return hashlib.sha256(content.encode("utf-8")).hexdigest()
+    if type(content) is not str:
+        raise TypeError("content must be an exact str instance")
+    return hashlib.sha256(str.encode(content, "utf-8")).hexdigest()
 
 
 def escape_like(text: str) -> str:
