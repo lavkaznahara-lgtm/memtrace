@@ -13,7 +13,6 @@
 Unlike standard databases that silently accept poisoned data, MemTrace detects **TOCTOU (Time-of-Check to Time-of-Use) attacks** and **memory poisoning**, ensuring your agent never acts on tampered evidence.
 
 *(Note: This is the Day 1 MVP. Graph visualisation, rollback, and impact analysis are planned for Day 2).*
-
 ## What MemTrace does and does not do
 
 | | Day 1 |
