@@ -14,7 +14,7 @@ if sys.platform == "win32":
     sys.stdout.reconfigure(encoding='utf-8')
 
 
-def run_simulation():
+def run_simulation() -> None:
     db_path = Path("agent_memory_demo.db")
     if db_path.exists():
         db_path.unlink()
