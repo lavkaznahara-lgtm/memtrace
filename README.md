@@ -1,21 +1,18 @@
-# MemTrace
-# MemTrace
+# 🛡️ MemTrace: Secure Memory for AI Agents
 
-![Tests](https://img.shields.io/badge/tests-88_passing-brightgreen)
-![Python](https://img.shields.io/badge/python-3.11+-blue)
-![Mypy](https://img.shields.io/badge/mypy-strict_clean-brightgreen)
-![Security](https://img.shields.io/badge/security-red--teamed-red)
-![License](https://img.shields.io/badge/license-MIT-blue)
+[![Tests](https://img.shields.io/badge/tests-88_passing-brightgreen)](#)
+[![Python](https://img.shields.io/badge/python-3.11+-blue)](#)
+[![Mypy](https://img.shields.io/badge/mypy-strict_clean-brightgreen)](#)
+[![Security](https://img.shields.io/badge/security-red--teamed-red)](#)
+[![License](https://img.shields.io/badge/license-MIT-blue)](#)
 
-An independent memory auditing layer for AI agents. It wraps the memory store...
-An independent **memory auditing layer for AI agents**. It wraps the memory store
-an agent already uses, records an append-only provenance ledger of every write and
-read, and refuses to hand back memories whose stored content no longer matches
-what the ledger recorded.
+👉 **See it in action:** Run `python examples/real_world_test.py` to watch MemTrace block a live SQLite tampering attack.
 
-This is the **Day 1 MVP**: interception, an append-only version ledger and integrity
-checks. Graph visualisation, rollback, impact analysis, leave-one-out replay and any
-UI are *not* built yet (only interfaces are prepared, see "Day 2").
+**MemTrace** is an independent memory auditing layer for AI agents. It wraps the memory store an agent already uses, records an append-only provenance ledger of every write and read, and refuses to hand back memories whose stored content no longer matches what the ledger recorded.
+
+Unlike standard databases that silently accept poisoned data, MemTrace detects **TOCTOU (Time-of-Check to Time-of-Use) attacks** and **memory poisoning**, ensuring your agent never acts on tampered evidence.
+
+*(Note: This is the Day 1 MVP. Graph visualisation, rollback, and impact analysis are planned for Day 2).*
 
 ## What MemTrace does and does not do
 
