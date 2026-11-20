@@ -6,7 +6,7 @@
 [![Security](https://img.shields.io/badge/security-red--teamed-red)](#)
 [![License](https://img.shields.io/badge/license-MIT-blue)](#)
 
-👉 **See it in action:** Run `python examples/real_world_test.py` to watch MemTrace block a live SQLite tampering attack.
+👉 **See it in action:** Run [`python examples/real_world_test.py`](examples/real_world_test.py) to watch MemTrace block a live SQLite tampering attack.
 
 **MemTrace** is an independent memory auditing layer for AI agents. It wraps the memory store an agent already uses, records an append-only provenance ledger of every write and read, and refuses to hand back memories whose stored content no longer matches what the ledger recorded.
 
