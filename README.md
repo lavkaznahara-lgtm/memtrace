@@ -1,13 +1,22 @@
 # MemTrace
 
 An independent **memory auditing layer for AI agents**. It wraps the memory store
-an agent already uses, records an immutable provenance ledger of every write and
+an agent already uses, records an append-only provenance ledger of every write and
 read, and refuses to hand back memories whose stored content no longer matches
 what the ledger recorded.
 
-This is the **Day 1 MVP**: interception, an immutable version ledger and integrity
+This is the **Day 1 MVP**: interception, an append-only version ledger and integrity
 checks. Graph visualisation, rollback, impact analysis, leave-one-out replay and any
 UI are *not* built yet (only interfaces are prepared, see "Day 2").
+
+## What MemTrace does and does not do
+
+| | Day 1 |
+|---|---|
+| **Detection** | Yes. Stored content that no longer matches the ledger is reported `TAMPERED` or `MISSING`. |
+| **Refusal to return** | Yes. `get_memory` excludes such memories and records an audit event. |
+| **Prevention** | No. Nothing stops anyone from writing to the store or to the database. |
+| **Recovery** | No. A corrupted store stays corrupted; there is no rollback or repair yet. Manual recovery is required. |
 
 ## Security boundary (read this first)
 
@@ -26,6 +35,24 @@ Concretely:
   (`test_security_boundary_an_attacker_who_rewrites_both_is_not_detected`).
 - There are no signatures, no hash chain and no external anchoring. Those are
   prerequisites for any tamper-evidence claim and are out of scope for Day 1.
+- **Ledger self-check.** Every read of the current version checks that the ledger
+  version's content still matches its own recorded hash. This does not depend on
+  any trigger: with the trigger dropped and the content edited, verification raises
+  `IntegrityError` (`test_p0_public_verification_detects_ledger_tampering_without_trigger_help`).
+- **No replay protection.** Moving a memory's `current_version_id` back to one of its
+  own earlier versions is not blocked by any trigger or constraint (only pointers to
+  another memory's version, or to a missing version, are blocked by the
+  `memories_pointer_valid` trigger). A pointer-only rollback is reported `TAMPERED`,
+  because the store still holds the newer content; a rollback that also restores the
+  older text in the store verifies as `VALID` and is returned without any alarm.
+  Version rollback is therefore **not** prevented when the trusted ledger itself is
+  modified (`test_p1_replay_attack_boundary`).
+- **Only the current version is re-verified.** `list_versions` returns historical
+  versions as stored, without re-checking their hashes.
+- **Hostile store objects.** The integrity monitor reads a store item's id and content
+  once, requires exact `str` types, and returns the very string it hashed
+  (`tests/test_red_team.py`). This concerns objects a store hands back, not database
+  access.
 
 ## Install and run
 
@@ -36,7 +63,7 @@ python -m venv .venv
 source .venv/bin/activate            # Windows: .venv\Scripts\activate
 pip install -e ".[dev]"              # or: pip install -r requirements.txt && pip install -e .
 
-pytest                               # 52 tests
+pytest                               # 88 tests
 mypy --strict memtrace tests examples
 python examples/basic_usage.py
 ```
@@ -58,7 +85,7 @@ adapter.update_memory(policy.memory_id, "Refunds above $200 need approval.", "po
 ```
 
 `AuditMemoryAdapter(database, store)` wraps any object implementing the
-`MemoryStore` protocol (`put`, `get`, `search`, `schema_statements`). `SimpleVectorStore`
+`MemoryStore` protocol (`put`, `get`, `search`, `schema_statements`). `SimpleLexicalStore`
 is a mock SQLite store with deterministic lexical search (SQL `LIKE`); replace its
 `search` with embeddings later without touching the adapter.
 
@@ -68,7 +95,8 @@ is a mock SQLite store with deterministic lexical search (SQL `LIKE`); replace i
   and records the ordered `parent_ids` (they must exist and not repeat).
 - **`update_memory`** keeps `memory_id`, creates a new `version_id`, increments
   `version_number` by exactly 1 and copies `parent_ids` unchanged from the previous
-  version. Earlier versions are never modified (enforced by triggers and tested).
+  version. MemTrace never modifies earlier versions; direct SQL edits to them are blocked by
+  triggers, which anyone with write access to the database file can drop.
 - **`get_memory`** returns only the **latest** version of each matching memory and
   only if its integrity is `VALID`. `TAMPERED`, `MISSING` and untracked store items
   are excluded and each exclusion becomes an audit event. Every read is recorded in
@@ -93,7 +121,7 @@ All inherit from `MemTraceError`.
 ## Ledger schema
 
 `memories` (one row per logical memory, `current_version_id` points at its latest
-version), `memory_versions` (immutable history: content, SHA-256, source, ordered
+version), `memory_versions` (append-only history: content, SHA-256, source, ordered
 parent ids as JSON, timestamps), `audit_events` and `memory_reads` (both
 append-only). Foreign keys and indexes are defined in `memtrace/ledger.py`. The mock
 store adds one table, `store_items`.
@@ -133,15 +161,13 @@ Day 1 dependency), `RollbackEngine`, `ImpactAnalyzer` and `ReplayEngine`
 
 ## Verification
 
-Run during development: `pytest` (52 passed) and `mypy --strict memtrace tests
+Run during development: `pytest` (88 passed) and `mypy --strict memtrace tests
 examples` (no issues) on Python 3.12.3, SQLite 3.45.1, pytest 9.2.0, mypy 2.4.1.
 Mypy targets Python 3.11 (`python_version` in `pyproject.toml`), but the tests were
 **not executed on Python 3.11**.
 
-The tests were also checked by deliberately breaking the source in 15 ways (for
-example never reporting `TAMPERED`, exposing tampered content, dropping the shadow
-search, dropping parent ids on update, removing the append-only trigger, never
-closing or committing a connection); every breakage made at least one test fail.
+Mutation checks (deliberately breaking the source and confirming that tests fail) were
+run ad hoc during development; they are not part of the repository.
 
 ## Limitations
 
@@ -149,5 +175,11 @@ closing or committing a connection); every breakage made at least one test fail.
 - Lexical search only; no embeddings.
 - Single-process, file-backed SQLite; concurrency is serialised, not stress-tested.
 - Only the latest content of a memory is verifiable in the store; historical versions
-  live in the ledger.
-- The prescribed project structure has no `LICENSE` file; add one before publishing.
+  live in the ledger and are not re-verified on read.
+- Detection only: it does not prevent writes to the store and does not repair a
+  corrupted store; there is no rollback yet.
+- No replay protection when the ledger itself is modified (see the security boundary).
+
+## License
+
+MIT. See [LICENSE](LICENSE).

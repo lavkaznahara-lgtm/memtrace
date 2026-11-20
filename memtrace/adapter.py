@@ -39,7 +39,7 @@ from memtrace.models import (
     MemoryRecord,
     content_hash,
 )
-from memtrace.store import MemoryStore, SimpleVectorStore
+from memtrace.store import MemoryStore, SimpleLexicalStore
 
 Clock = Callable[[], datetime]
 IdFactory = Callable[[], str]
@@ -103,7 +103,7 @@ class AuditMemoryAdapter:
         id_factory: IdFactory | None = None,
     ) -> AuditMemoryAdapter:
         """Open (creating if needed) a database and wrap ``store`` (default mock)."""
-        chosen = store if store is not None else SimpleVectorStore()
+        chosen = store if store is not None else SimpleLexicalStore()
         database = Database(path, chosen.schema_statements())
         return cls(database, chosen, clock=clock, id_factory=id_factory)
 

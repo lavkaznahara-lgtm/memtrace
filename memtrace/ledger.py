@@ -33,6 +33,7 @@ from memtrace.models import (
     MemoryNotFoundError,
     MemoryRecord,
     StorageError,
+    content_hash,
     escape_like,
 )
 
@@ -421,7 +422,9 @@ class Ledger:
         """Return the version the logical memory currently references.
 
         Raises :class:`MemoryNotFoundError` for an unknown memory and
-        :class:`IntegrityError` if the ledger itself is inconsistent.
+        :class:`IntegrityError` if the ledger itself is inconsistent, including
+        a version whose content no longer matches its recorded hash.  That
+        self-check does not depend on any SQLite trigger.
         """
         head = conn.execute(
             "SELECT current_version_id FROM memories WHERE memory_id = ?",
@@ -440,7 +443,13 @@ class Ledger:
             raise IntegrityError(
                 f"memory {memory_id!r} references a missing or foreign version"
             )
-        return _record(row)
+        record = _record(row)
+        if content_hash(record.content) != record.content_hash:
+            raise IntegrityError(
+                f"ledger version {record.version_id!r} is internally "
+                "inconsistent: its content does not match its recorded hash"
+            )
+        return record
 
     def list_versions(
         self, conn: sqlite3.Connection, memory_id: str

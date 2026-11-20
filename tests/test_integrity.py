@@ -18,7 +18,7 @@ from memtrace import (
     IntegrityMonitor,
     Ledger,
     MemoryNotFoundError,
-    SimpleVectorStore,
+    SimpleLexicalStore,
     StorageError,
     StoredItem,
 )
@@ -257,7 +257,7 @@ def test_failed_integrity_checks_never_expose_tampered_content_as_trusted(
     tamper(adapter, record.memory_id, evil)
 
     result = adapter.verify_integrity(record.memory_id)
-    monitor = IntegrityMonitor(Ledger(), SimpleVectorStore())
+    monitor = IntegrityMonitor(Ledger(), SimpleLexicalStore())
     with adapter.database.transaction() as conn:
         checked, content = monitor.check_with_content(conn, record.memory_id)
 
@@ -280,7 +280,7 @@ def test_empty_search_is_a_normal_empty_list(adapter: AuditMemoryAdapter) -> Non
 # --------------------------------------------------------------------------- #
 
 
-class FlakyStore(SimpleVectorStore):
+class FlakyStore(SimpleLexicalStore):
     """A store whose ``get`` can be switched to fail with a chosen exception."""
 
     def __init__(self) -> None:

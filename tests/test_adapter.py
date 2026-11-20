@@ -17,7 +17,7 @@ from memtrace import (
     Database,
     IntegrityError,
     MemoryNotFoundError,
-    SimpleVectorStore,
+    SimpleLexicalStore,
     StorageError,
 )
 
@@ -345,7 +345,7 @@ def test_update_is_refused_when_the_memory_is_tampered(
 # --------------------------------------------------------------------------- #
 
 
-class ExplodingStore(SimpleVectorStore):
+class ExplodingStore(SimpleLexicalStore):
     """A store whose writes start failing after ``allowed`` successful puts."""
 
     def __init__(self, allowed: int) -> None:

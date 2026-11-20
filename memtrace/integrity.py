@@ -57,12 +57,8 @@ class IntegrityMonitor:
         stored: str | None = None
         actual: str | None = None
         try:
+            # Raises IntegrityError if the ledger version is internally inconsistent.
             version = self._ledger.get_current_version(conn, memory_id)
-            if content_hash(version.content) != version.content_hash:
-                raise IntegrityError(
-                    f"ledger version {version.version_id!r} is internally "
-                    "inconsistent: its content does not match its recorded hash"
-                )
             item = self._store.get(conn, memory_id)
             if item is not None:
                 # RT-007: the store must answer for the memory we asked about.

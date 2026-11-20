@@ -1,9 +1,10 @@
 """A mock SQLite-backed memory store with deterministic lexical search.
 
-``SimpleVectorStore`` stands in for the memory store an agent already uses.  It
+``SimpleLexicalStore`` stands in for the memory store an agent already uses.  It
+does substring matching only: there are no embeddings and no vector search.  It
 is intentionally tiny: the audit layer must work with *any* store that
-implements the :class:`MemoryStore` protocol.  Swap ``search`` for embedding
-similarity later without touching the adapter.
+implements the :class:`MemoryStore` protocol.  A real vector store would replace
+``search`` without touching the adapter.
 """
 
 from __future__ import annotations
@@ -49,7 +50,7 @@ class MemoryStore(Protocol):
         ...
 
 
-class SimpleVectorStore:
+class SimpleLexicalStore:
     """SQLite table with deterministic substring search (SQL ``LIKE``).
 
     ``content_hash`` is kept the way real stores keep denormalised columns, but

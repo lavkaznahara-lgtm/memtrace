@@ -24,7 +24,7 @@ from memtrace import (
     AuditMemoryAdapter,
     IntegrityError,
     IntegrityResult,
-    SimpleVectorStore,
+    SimpleLexicalStore,
     StoredItem,
 )
 from memtrace.models import content_hash
@@ -43,7 +43,7 @@ def make_clock() -> Callable[[], datetime]:
     return lambda: start + timedelta(seconds=next(ticks))
 
 
-def open_adapter(path: Path, store: SimpleVectorStore | None = None) -> AuditMemoryAdapter:
+def open_adapter(path: Path, store: SimpleLexicalStore | None = None) -> AuditMemoryAdapter:
     """Open an adapter with deterministic ids and time."""
     return AuditMemoryAdapter.open(
         path, store, clock=make_clock(), id_factory=make_id_factory()
@@ -91,7 +91,7 @@ def make_forged_string(attack: str, original: str) -> str:
     return Forged(attack)
 
 
-class HostileStore(SimpleVectorStore):
+class HostileStore(SimpleLexicalStore):
     """A store that, once ``item`` is set, returns that object from ``get``.
 
     The returned object deliberately need not be a real ``StoredItem``: a

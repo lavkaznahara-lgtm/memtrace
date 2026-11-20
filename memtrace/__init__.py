@@ -12,7 +12,7 @@ from memtrace.models import (
     MemTraceError,
     StorageError,
 )
-from memtrace.store import MemoryStore, SimpleVectorStore, StoredItem
+from memtrace.store import MemoryStore, SimpleLexicalStore, StoredItem
 
 __version__ = "0.1.0"
 
@@ -29,7 +29,7 @@ __all__ = [
     "MemoryNotFoundError",
     "MemoryRecord",
     "MemoryStore",
-    "SimpleVectorStore",
+    "SimpleLexicalStore",
     "StorageError",
     "StoredItem",
     "__version__",
