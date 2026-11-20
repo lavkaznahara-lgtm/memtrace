@@ -1,5 +1,13 @@
 # MemTrace
+# MemTrace
 
+![Tests](https://img.shields.io/badge/tests-88_passing-brightgreen)
+![Python](https://img.shields.io/badge/python-3.11+-blue)
+![Mypy](https://img.shields.io/badge/mypy-strict_clean-brightgreen)
+![Security](https://img.shields.io/badge/security-red--teamed-red)
+![License](https://img.shields.io/badge/license-MIT-blue)
+
+An independent memory auditing layer for AI agents. It wraps the memory store...
 An independent **memory auditing layer for AI agents**. It wraps the memory store
 an agent already uses, records an append-only provenance ledger of every write and
 read, and refuses to hand back memories whose stored content no longer matches
