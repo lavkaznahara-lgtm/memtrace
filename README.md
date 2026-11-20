@@ -180,6 +180,15 @@ run ad hoc during development; they are not part of the repository.
   corrupted store; there is no rollback yet.
 - No replay protection when the ledger itself is modified (see the security boundary).
 
+---
+
+## 📫 Contact & Connect
+
+I'm open to questions, suggestions, or job opportunities in AI Safety and LLM Evaluation. Let's connect!
+
+[![X (Twitter)](https://img.shields.io/badge/X-@zhora__ai-black?style=for-the-badge&logo=x)](https://x.com/zhora_ai)
+[![Telegram](https://img.shields.io/badge/Telegram-@RR__WEB-blue?style=for-the-badge&logo=telegram)](https://t.me/RR_WEB)
+[![Email](https://img.shields.io/badge/Email-lavkaznahara@gmail.com-red?style=for-the-badge&logo=gmail)](mailto:lavkaznahara@gmail.com)
 ## License
 
 MIT. See [LICENSE](LICENSE).
