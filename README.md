@@ -1,18 +1,19 @@
-# 🛡️ MemTrace: Secure Memory for AI Agents
+# MemTrace
 
-[![Tests](https://img.shields.io/badge/tests-88_passing-brightgreen)](#)
-[![Python](https://img.shields.io/badge/python-3.11+-blue)](#)
-[![Mypy](https://img.shields.io/badge/mypy-strict_clean-brightgreen)](#)
-[![Security](https://img.shields.io/badge/security-red--teamed-red)](#)
-[![License](https://img.shields.io/badge/license-MIT-blue)](#)
+![Tests](https://img.shields.io/badge/tests-88_passing-brightgreen)
+![Python](https://img.shields.io/badge/python-3.11+-blue)
+![Mypy](https://img.shields.io/badge/mypy-strict_clean-brightgreen)
+![Security](https://img.shields.io/badge/security-red--team_regression_tests-red)
+![License](https://img.shields.io/badge/license-MIT-blue)
 
-👉 **See it in action:** Run [`python examples/real_world_test.py`](examples/real_world_test.py) to watch MemTrace block a live SQLite tampering attack.
+Append-only memory auditing for AI agents. Detects out-of-band tampering with a memory store, refuses to return the affected memories, and keeps a provenance ledger of every write and read.
 
-**MemTrace** is an independent memory auditing layer for AI agents. It wraps the memory store an agent already uses, records an append-only provenance ledger of every write and read, and refuses to hand back memories whose stored content no longer matches what the ledger recorded.
+**Detects:** edits, deletions, and injected entries made directly in the store while the ledger is intact.
+**Does not:** prevent those writes, repair the store, detect poison written through the normal write path, or stop an attacker who rewrites the ledger too.
 
-Unlike standard databases that silently accept poisoned data, MemTrace detects **TOCTOU (Time-of-Check to Time-of-Use) attacks** and **memory poisoning**, ensuring your agent never acts on tampered evidence.
+*Not tamper-proof. See "Security boundary" below.*
 
-*(Note: This is the Day 1 MVP. Graph visualisation, rollback, and impact analysis are planned for Day 2).*
+👉 **See it in action:** Run [`python examples/tamper_detection_demo.py`](examples/tamper_detection_demo.py) to watch MemTrace detect out-of-band tampering, and document what it cannot catch.
 ## What MemTrace does and does not do
 
 | | Day 1 |
