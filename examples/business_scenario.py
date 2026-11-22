@@ -2,7 +2,7 @@ import sqlite3
 from pathlib import Path
 from memtrace import AuditMemoryAdapter
 
-def run_business_scenario():
+def run_business_scenario() -> None:
     db_path = Path("support_agent_memory.db")
     if db_path.exists():
         db_path.unlink()

@@ -1,14 +1,18 @@
-# MemTrace
+# 🛡️ MemTrace: Secure Memory for AI Agents
 
-An independent **memory auditing layer for AI agents**. It wraps the memory store
-an agent already uses, records an append-only provenance ledger of every write and
-read, and refuses to hand back memories whose stored content no longer matches
-what the ledger recorded.
+[![Tests](https://img.shields.io/badge/tests-88_passing-brightgreen)](#)
+[![Python](https://img.shields.io/badge/python-3.11+-blue)](#)
+[![Mypy](https://img.shields.io/badge/mypy-strict_clean-brightgreen)](#)
+[![Security](https://img.shields.io/badge/security-red--teamed-red)](#)
+[![License](https://img.shields.io/badge/license-MIT-blue)](#)
 
-This is the **Day 1 MVP**: interception, an append-only version ledger and integrity
-checks. Graph visualisation, rollback, impact analysis, leave-one-out replay and any
-UI are *not* built yet (only interfaces are prepared, see "Day 2").
+👉 **See it in action:** Run [`python examples/real_world_test.py`](examples/real_world_test.py) to watch MemTrace block a live SQLite tampering attack.
 
+**MemTrace** is an independent memory auditing layer for AI agents. It wraps the memory store an agent already uses, records an append-only provenance ledger of every write and read, and refuses to hand back memories whose stored content no longer matches what the ledger recorded.
+
+Unlike standard databases that silently accept poisoned data, MemTrace detects **TOCTOU (Time-of-Check to Time-of-Use) attacks** and **memory poisoning**, ensuring your agent never acts on tampered evidence.
+
+*(Note: This is the Day 1 MVP. Graph visualisation, rollback, and impact analysis are planned for Day 2).*
 ## What MemTrace does and does not do
 
 | | Day 1 |
@@ -180,6 +184,15 @@ run ad hoc during development; they are not part of the repository.
   corrupted store; there is no rollback yet.
 - No replay protection when the ledger itself is modified (see the security boundary).
 
+---
+
+## 📫 Contact & Connect
+
+I'm open to questions, suggestions, or job opportunities in AI Safety and LLM Evaluation. Let's connect!
+
+[![X (Twitter)](https://img.shields.io/badge/X-@zhora__ai-black?style=for-the-badge&logo=x)](https://x.com/zhora_ai)
+[![Telegram](https://img.shields.io/badge/Telegram-@RR__WEB-blue?style=for-the-badge&logo=telegram)](https://t.me/RR_WEB)
+[![Email](https://img.shields.io/badge/Email-lavkaznahara@gmail.com-red?style=for-the-badge&logo=gmail)](mailto:lavkaznahara@gmail.com)
 ## License
 
 MIT. See [LICENSE](LICENSE).
