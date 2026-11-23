@@ -88,7 +88,8 @@ def poison_through_write_path(folder: Path) -> None:
         say("NOT DETECTED: MemTrace recorded the write faithfully and cannot judge content.")
     else:
         say("UNEXPECTED: the poisoned write was not served as VALID.")
-    say("What it does give you: the provenance of the change.")
+    say("What it does give you: a record of every change with the source label the CALLER supplied.")
+    say("Caveat: that label is not authenticated; a malicious writer can simply claim source='system_policy'.")
     for version in adapter.list_versions(record.memory_id):
         say(f"  v{version.version_number} source={version.source!r}: {version.content!r}")
 
